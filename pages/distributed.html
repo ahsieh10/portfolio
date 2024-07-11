@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css"/>
+    <link rel="icon" type="image/png" href="../images/SmallIcon.png">
+    <title>Allison Hsieh</title>
+</head>
+<body>
+    <header>
+        <h4>Allison Hsieh</h4>
+        <ul class="navbar">
+          <li>
+            <a href="../index.html" class="other">About</a>
+          </li>
+          <li>
+            <a href="../pages/projects.html">Projects</a>
+          </li>
+        </ul>
+      </header>
+  <div class="container">
+    <h1>GutenSearch: A Distributed Fine-Grained Search Engine for Language Learners</h1>
+    <h4>JavaScript, Spring 2024</h4>
+    <h2>About</h2>
+    <p>
+        In this project, I, along with 4 groupmates, created a <b>distributed by-paragraph search engine</b> for occurrences of words or phrases in a set of books (the Gutenberg dataset) in JavaScript and deployed it on AWS. I mainly worked on the <b>distributed URL crawling</b> section of the pipeline, but I also contributed to the implementation of the <b>distributed text downloading</b> and <b>indexing</b> section as well.
+    </p>
+    <div>
+        <h2>Motivation</h2>
+        <p>
+            When learning a new language, it is often helpful to see <b>uses of words and phrases in context</b>, especially within books. Therefore, we decided to create a <b>search engine</b> that, given a queried sentence, will return the <b>URLs</b> of books and <b>paragraph numbers</b> where words in that sentence are found. This allows users to immediately find the exact context where their search phrase appears, but also gives them enough surrounding text to infer meaning and semantics.
+        </p>
+    </div>
+    <h2>Project Demo</h2>
+    <p>
+        To crawl all of the URLs in the file, a user can run <b>node urls.js</b> in the command line and get the results as shown below:
+    </p>
+    <img src="../images/urls.png">
+    <p>
+        The user can then download the text and make repeated queries as shown below:
+    </p>
+    <img src="../images/query.png">
+    <h2>Implementation Overview</h2>
+    <p>Before a user makes a query, the following steps occur:</p>
+    <ul>
+        <li><b>Crawling:</b>
+            Given a set of root directory URLs distributed across each node, all of the URLs linking to books are extracted and collated into one text file.
+        </li>
+        <li><b>Downloading:</b>
+            After the list of URLs are collected, the content of each URL is downloaded and reshuffled amongst each of the nodes.
+        </li>
+        <li><b>Indexing:</b>
+            For the books stored on each node, 1 and 2 word grams, along with their paragraph number and URL, are placed in a single file on a specific node depending on the starting letter.
+        </li>
+    </ul>
+    <p>All of the above steps occur only once, and they are all implemented using the <b>MapReduce</b> abstraction, which is also implemented by our group. We decided to implement these steps with MapReduce because the Gutenberg dataset was a very large dataset and <b>scaling out the calculations to many nodes would benefit greatly</b> for performance.</p>
+    <p>Lastly, for our query, we divide up the queried sentence into 1 and 2 grams. We determine the nodes that contain the n-grams using consistent hashing, and then we collate and return the results.</p>
+    <h2>
+        Design choices
+    </h2>
+    <p>There were <b>several tradeoffs</b> that we had to consider during the design process, with our final choices labeled in green:</p>
+    <img src="../images/Tradeoffs.png">
+    <p>When discussing these tradeoffs, in general, we decided to <b>sacrifice pre-processing communication cost and memory use</b> for <b>faster querying</b> and <b>even load distribution</b> amongst the nodes in pre-processing. An even distribution load will allow the pipeline operations to be properly parallelized, and fast querying speed is important because it can be repeated an unlimited amount of times.</p>
+    <h2>Takeaways</h2>
+    <p>
+        This project was quite difficult, as we ran into many issues regarding <b>asynchronous operations in JavaScript</b>, and we were also unable to deploy our search pipeline on the entirety of the Gutenberg dataset due to <b>limited memory storage on the t2.micro EC2 instances</b>. However, being able to witness a <b>significant increase in performance</b> compared to the non-distributed implementation was very satisfying, and I found it very enriching to bounce design ideas off of other peers. Overall, I am very proud of how this project turned out, and it gave me a <b>much better understanding of distributed systems</b> as well!
+    </p>
+  </div>
+</body>
+</html>

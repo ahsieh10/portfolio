@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles.css"/>
+    <link rel="icon" type="image/png" href="../images/SmallIcon.png">
+    <title>Allison Hsieh</title>
+</head>
+<body>
+    <header>
+        <h4>Allison Hsieh</h4>
+        <ul class="navbar">
+          <li>
+            <a href="../index.html" class="other">About</a>
+          </li>
+          <li>
+            <a href="../pages/projects.html">Projects</a>
+          </li>
+        </ul>
+      </header>
+  <div class="container">
+    <div class="title">
+        <h1>Implementation of IP/TCP Protocol</h1>
+        <h4>Go, Fall 2023</h4>
+    </div>
+    <div class="body">
+        <h2>About</h2>
+        <p>This was a pair project that spanned about two months, where we built an <b>emulated version of the TCP and IP protocol</b> using only UDP ports in Go. I mainly contributed to <b>implementing the RIP protocol, zero-window probing,</b> and <b>constructing the bare-bone structure</b> of the TCP protocol (without retransmissions and out-of-order packets).
+        </p>
+        <img src="../images/NetworksCover.png">
+        <h2>Motivation</h2>
+        <p>This project was constructed to better <b>understand the intricacies of reliable network communication</b> and also to <b>practice making design decisions</b> for a large codebase ahead of time. I also wanted to combine my interests of software development and systems design in one.</p>
+        <h2>Project Demo</h2>
+        <p>The figure below demonstrates establishing a connection between two hosts:</p>
+        <img src="../images/Connecting.PNG">
+        <p>The figure below demonstrates sending and receiving bytes between two hosts:</p>
+        <img src="../images/SendReceive.PNG">
+        <p>The figure below shows the packets in flight using Wireshark:</p>
+        <img src="../images/Wireshark.PNG">
+        <h2>IP</h2>
+        <img src="../images/IPDiagram.png">
+        <p>For the purposes of this project, we <b>model the link layer using UDP ports</b>, where each interface’s MAC address is the UDP port number. We embed the IP header with relevant information into the packet and send it to the relevant UDP socket. We provide the user with a <b>send/receive API</b>, where users can send IP packets to a specific protocol handler and also register handler functions that will receive the packets.
+            The main goal of the IP stack is to, upon receiving a packet, <b>send the packet to a higher network layer</b> if the packet’s destination matches– otherwise, <b>forward the packet to another router</b> based on its forwarding table.
+        </p>
+        <h4>Feature: RIP Protocol</h4>
+        <p>Each node will send <b>periodic forwarding table updates</b> to each of its own interfaces every 5 seconds. Our IP implementation also supports <b>triggered updates</b>, where the updates to the forwarding table are sent immediately after the forwarding table is updated. <b>Split horizon with poisoned reverse</b> is also utilized to avoid infinite loops of sending routing table information back to the original source of the update. </p>
+        <h2>TCP</h2>
+        <img src="../images/TCPDiagram.png">
+        <p>
+            Our TCP implementation is built on top of our IP implementation and is <b>registered in the IP stack</b> as a callback handler.
+        </p>
+        <h4>Socket API</h4>
+        <p>Our TCP implementation features a <b>custom socket API</b> that handles the underlying packet transmissions according to the TCP protocol (handshake, sequence numbers etc.):</p>
+        <ul>
+            <li><b>Listen sockets:</b>
+                <ul>
+                    <li>
+                        VListen - listen for connections
+                    </li>
+                    <li>
+                        VAccept - accept connections
+                    </li>
+                </ul>
+            </li>
+            <li><b>Normal sockets:</b>
+                <ul>
+                    <li>
+                        VConnect - connect to socket
+                    </li>
+                    <li>
+                        VRead - read from socket
+                    </li>
+                    <li>
+                        VWrite - write from socket
+                    </li>
+                    <li>
+                        VClose - proper teardown of sockets after all in-flight packets are received
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <h4>
+            Out of Order Packets
+        </h4>
+        <p>Our implementation also takes care of out-of-order packets with a <b>priority queue</b>; when the next sequence number matches the top of the queue, the packet is popped off the queue and stored in the buffer.</p>
+        <h4>
+            Zero-Window Probing
+        </h4>
+        <p>
+            When the read buffer is out of space, the writing side <b>repeatedly sends 1 byte of data</b> until the byte is accepted (meaning that the read buffer has freed up space).
+        </p>
+        <h4>
+            Retransmissions
+        </h4>
+        <p>
+            Here, we also utilize a <b>priority queue of un-ACKed segments</b> that still need to be retransmitted. We maintain a goroutine that periodically retransmits the segment with the smallest sequence number until an ACK is received.
+        </p>
+        <h2>Takeaways</h2>
+        <p>
+            This project was arguably the <b>most hefty project</b> that I have ever completed. Although we were asked to follow a seemingly specific protocol, we still had to <b>make various design choices</b> about what data structures to use to track packets and <b>how to compose our packets</b>, and there were many times we had to <b>scratch our implementation and restart</b> because one of our proposed designs ran into a roadblock. However, it was incredibly satisfying to bring an abstract protocol to life using code, and I had a great time collaborating with my partner as well.
+        </p>
+    </div>
+  </div>
+</body>
+</html>
