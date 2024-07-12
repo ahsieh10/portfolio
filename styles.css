@@ -236,3 +236,9 @@ a p{
   color: rgb(222, 7, 111);
   font-size: 25px;
 }
+
+.resume{
+  align-items: center;
+  padding-left: 30vw;
+  padding-top: 5%;
+}
