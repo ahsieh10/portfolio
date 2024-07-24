@@ -37,11 +37,11 @@
         <p>This project was constructed to better <b>understand the intricacies of reliable network communication</b> and also to <b>practice making design decisions</b> for a large codebase ahead of time. I also wanted to combine my interests of software development and systems design in one.</p>
         <h2>Project Demo</h2>
         <p>The figure below demonstrates establishing a connection between two hosts:</p>
-        <img src="../images/Connecting.PNG">
+        <img src="../images/Connecting.png">
         <p>The figure below demonstrates sending and receiving bytes between two hosts:</p>
-        <img src="../images/SendReceive.PNG">
+        <img src="../images/SendReceive.png">
         <p>The figure below shows the packets in flight using Wireshark:</p>
-        <img src="../images/Wireshark.PNG">
+        <img src="../images/Wireshark.png">
         <h2>IP</h2>
         <img src="../images/IPDiagram.png">
         <p>For the purposes of this project, we <b>model the link layer using UDP ports</b>, where each interface’s MAC address is the UDP port number. We embed the IP header with relevant information into the packet and send it to the relevant UDP socket. We provide the user with a <b>send/receive API</b>, where users can send IP packets to a specific protocol handler and also register handler functions that will receive the packets.
